@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Poll</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+</head>
+<body>
+    
+    <div class="container jumbotron">
+        <h1 class="display-4">GAME POLL</h1>
+        <hr>
+
+        <form action="" id="newGame" class="mb-3">
+            <label for="newGame" class="form-label">Add a new Game</label>
+            <input type="text" class="form-control" id="newGameInput" placeholder="GTA V">
+            <br>
+            <button type="submit" class="btn btn-dark">Send</button>
+        </form>
+
+
+        <div id='title-container'>
+
+        </div>
+
+        <form action="" id="submitVoting">
+            <button id="voteButton" type="submit" class="btn btn-dark">Submit</button>
+        </form>
+
+        <br>
+        <h1>Results</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Game Title</th>
+                    <th scope="col">Votes</th>
+                </tr>
+            </thead>
+            <tbody id="results">
+
+            </tbody>
+        </table>
+
+        <form action="" id="reset">
+            <button type="submit" class="btn btn-danger">Reset</button>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <script>
+        var socket = io();
+
+        var form = document.getElementById('newGame');
+        var input = document.getElementById('newGameInput');
+
+        var vote = document.getElementById('submitVoting');
+        var voteButton = document.getElementById("voteButton");
+
+        var container = document.getElementById('title-container');
+
+        var results = document.getElementById('results');
+
+        var reset = document.getElementById('reset');
+
+        var titles = [];
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if(input.value) {
+                socket.emit('new game', input.value);
+                input.value = '';
+            }
+        });
+
+        vote.addEventListener('submit', function(e){
+            e.preventDefault();
+            titles.forEach(title => {
+                socket.emit('vote', title.name + ":" + title.value);
+            });
+            voteButton.disabled = true;
+        });
+
+        reset.addEventListener('submit', function(e){
+            e.preventDefault();
+            socket.emit('reset');
+        })
+
+        socket.on('new game', function(title) {
+            console.log("Adding new game: " + title);
+            
+
+            var label = document.createElement('label');
+            label.setAttribute('for', title + '-input');
+            label.textContent = title;
+            label.classList.add("form-label");
+
+            var input = document.createElement('input');
+            input.setAttribute('type', 'range');
+            input.setAttribute('min', 0);
+            input.setAttribute('max', 5);
+            input.setAttribute('step', 1);
+            input.setAttribute('name', title);
+            input.setAttribute('id', title + '-input');
+            input.classList.add("form-range");
+            
+            titles.push(input);
+
+            container.appendChild(label);
+            container.appendChild(input);
+        });
+
+        socket.on('vote', function(votes){
+            // Clear all childs
+            while(results.firstChild){
+                results.removeChild(results.firstChild);
+            }
+
+            votes.forEach(vote => {
+                var value = vote.split(":")[0];
+                var title = vote.split(":")[1];
+
+                var tr = document.createElement('tr');
+                var th = document.createElement('th');
+                th.setAttribute('scope', 'row');
+                th.textContent = title;
+
+                var td = document.createElement('td');
+                td.textContent = value;
+
+                tr.appendChild(th);
+                tr.appendChild(td);
+                results.appendChild(tr);
+            });
+        });
+
+        socket.on('reset', function(){
+            //Clear all childs
+            while(results.firstChild){
+                results.removeChild(results.firstChild);
+            }
+
+            while(container.firstChild){
+                container.removeChild(container.firstChild);
+            }
+        });
+        
+    </script>
+</body>
+</html>
