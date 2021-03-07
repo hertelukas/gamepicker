@@ -80,7 +80,7 @@
         vote.addEventListener('submit', function(e){
             e.preventDefault();
             titles.forEach(title => {
-                socket.emit('vote', title.name + ":" + title.value);
+                socket.emit('vote', title.name + "| " + title.value);
             });
             voteButton.disabled = true;
         });
@@ -121,8 +121,8 @@
             }
 
             votes.forEach(vote => {
-                var value = vote.split(":")[0];
-                var title = vote.split(":")[1];
+                var value = vote.split("|")[0];
+                var title = vote.split("|")[1];
 
                 var tr = document.createElement('tr');
                 var th = document.createElement('th');

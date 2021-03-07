@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
     var data = [];
 
     currentTitles.forEach(function(value, key){
-        data.push(value + ":" + key);
+        data.push(value + "|" + key);
     });
     socket.emit('vote', data);
 
@@ -36,14 +36,14 @@ io.on('connection', (socket) => {
     });
 
     socket.on('vote', (vote) => {
-        var text = vote.split(":")[0];
-        var value = Number(vote.split(":")[1]) + currentTitles.get(text);
+        var text = vote.split("|")[0];
+        var value = Number(vote.split("|")[1]) + currentTitles.get(text);
 
         currentTitles.set(text, value);
         var data = [];
 
         currentTitles.forEach(function(value, key){
-            data.push(value + ":" + key);
+            data.push(value + "|" + key);
         });
 
         io.emit('vote', data);
