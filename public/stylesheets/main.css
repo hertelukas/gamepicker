@@ -1,0 +1,26 @@
+body{
+    font-family: 'Raleway', sans-serif;
+}
+
+.container{
+    margin-top: 20px;
+    width: 50%;
+}
+
+.small-container{
+    margin: auto;
+    width: 70%;
+}
+
+.title{
+    margin-top: 30px;
+}
+
+.footer{
+    color: gray;
+}
+
+#title-container{
+    width: 40%;
+    margin: auto;
+}

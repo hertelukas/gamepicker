@@ -1,9 +1,10 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
 app.set('view engine', 'ejs');
-
+app.use(express.static(__dirname + "/public"));
 
 app.get('/', (req, res) => {
     res.render('index');
@@ -11,8 +12,11 @@ app.get('/', (req, res) => {
 
 var currentTitles = new Map();
 
+var online = 0;
+
 io.on('connection', (socket) => {
-    console.log('A user connected.');
+    online += 1;
+    io.emit('user change', online)
 
     for(const title of currentTitles.keys()){
         socket.emit('new game', title);
@@ -55,7 +59,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log("A user disconnected.")
+        online = online - 1;
+        io.emit('user change', online)
     });
 });
 
