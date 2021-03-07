@@ -145,17 +145,29 @@
                 results.removeChild(results.firstChild);
             }
 
+            var map = [];
+
             votes.forEach(vote => {
                 var value = vote.split("|")[0];
                 var title = vote.split("|")[1];
 
+                map.push({value: value, title: title});
+            });
+
+            map.sort((a,b) => {
+                if(a.value > b.value) return -1;
+                else if(a.value < b.value) return 1;
+                else return 0;
+            });
+
+            map.forEach(vote => {
                 var tr = document.createElement('tr');
                 var th = document.createElement('th');
                 th.setAttribute('scope', 'row');
-                th.textContent = title;
+                th.textContent = vote.title;
 
                 var td = document.createElement('td');
-                td.textContent = value;
+                td.textContent = vote.value;
 
                 tr.appendChild(th);
                 tr.appendChild(td);
